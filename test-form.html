@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>VoxFill Test Form</title>
+<style>
+  body { font-family: Arial, sans-serif; max-width: 640px; margin: 40px auto; padding: 0 20px; color: #1a1a1a; }
+  h1 { font-size: 22px; }
+  fieldset { border: 1px solid #ccc; border-radius: 8px; margin-bottom: 20px; padding: 16px; }
+  legend { font-weight: bold; padding: 0 6px; }
+  label { display: block; margin: 12px 0 4px; font-weight: 600; }
+  input[type="text"], input[type="email"], input[type="tel"], input[type="date"], select, textarea {
+    width: 100%; padding: 8px; border: 1px solid #bbb; border-radius: 6px; font-size: 14px;
+  }
+  .radio-row, .checkbox-row { font-weight: normal; display: flex; align-items: center; gap: 6px; margin: 6px 0; }
+  .radio-row label, .checkbox-row label { display: inline; font-weight: normal; margin: 0; }
+  button { margin-top: 20px; padding: 10px 18px; font-size: 15px; border-radius: 6px; border: none; background: #0b6efd; color: #fff; cursor: pointer; }
+</style>
+</head>
+<body>
+  <h1>VoxFill Test Form — Event Registration</h1>
+  <p>This page exists purely to test the VoxFill extension. Nothing here is submitted anywhere.</p>
+
+  <form id="registrationForm" onsubmit="return handleSubmit(event)">
+    <fieldset>
+      <legend>Personal details</legend>
+
+      <label for="fullName">Full Name</label>
+      <input type="text" id="fullName" name="fullName" placeholder="e.g. Priya Sharma" required />
+
+      <label for="emailAddress">Email Address</label>
+      <input type="email" id="emailAddress" name="emailAddress" placeholder="you@example.com" required />
+
+      <label for="phoneNumber">Phone Number</label>
+      <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="10-digit mobile number" required />
+
+      <label for="dob">Date of Birth</label>
+      <input type="date" id="dob" name="dob" />
+    </fieldset>
+
+    <fieldset>
+      <legend>Event preferences</legend>
+
+      <label for="sessionTrack">Preferred Track</label>
+      <select id="sessionTrack" name="sessionTrack" required>
+        <option value="">-- Select a track --</option>
+        <option value="accessibility">Accessibility &amp; Inclusive Design</option>
+        <option value="ai">Artificial Intelligence</option>
+        <option value="web">Web Development</option>
+        <option value="security">Security</option>
+      </select>
+
+      <label>Gender</label>
+      <div class="radio-row">
+        <input type="radio" id="genderMale" name="gender" value="male" />
+        <label for="genderMale">Male</label>
+      </div>
+      <div class="radio-row">
+        <input type="radio" id="genderFemale" name="gender" value="female" />
+        <label for="genderFemale">Female</label>
+      </div>
+      <div class="radio-row">
+        <input type="radio" id="genderOther" name="gender" value="other" />
+        <label for="genderOther">Prefer not to say</label>
+      </div>
+
+      <label>Interests</label>
+      <div class="checkbox-row">
+        <input type="checkbox" id="interestWorkshops" name="interests" value="workshops" />
+        <label for="interestWorkshops">Workshops</label>
+      </div>
+      <div class="checkbox-row">
+        <input type="checkbox" id="interestNetworking" name="interests" value="networking" />
+        <label for="interestNetworking">Networking</label>
+      </div>
+      <div class="checkbox-row">
+        <input type="checkbox" id="interestKeynotes" name="interests" value="keynotes" />
+        <label for="interestKeynotes">Keynotes</label>
+      </div>
+
+      <div class="checkbox-row" style="margin-top: 14px;">
+        <input type="checkbox" id="newsletter" name="newsletter" />
+        <label for="newsletter">Subscribe me to the newsletter</label>
+      </div>
+
+      <label for="notes">Additional Notes</label>
+      <textarea id="notes" name="notes" rows="3" placeholder="Dietary requirements, accessibility needs, etc."></textarea>
+    </fieldset>
+
+    <button type="submit">Submit Registration</button>
+  </form>
+
+  <script>
+    function handleSubmit(e) {
+      e.preventDefault();
+      alert('This is a test form. VoxFill does not and should not click this button for you — please review your answers, then submit yourself if everything looks correct.');
+      return false;
+    }
+  </script>
+</body>
+</html>

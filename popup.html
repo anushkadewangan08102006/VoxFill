@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>VoxFill</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <main class="voxfill-popup">
+    <header class="header">
+      <span class="icon" aria-hidden="true">🎙️</span>
+      <div>
+        <h1>VoxFill</h1>
+        <p class="subtitle">Voice-guided form filling</p>
+      </div>
+    </header>
+
+    <section class="controls">
+      <button id="startBtn" class="btn btn-primary" type="button">
+        Start Voice Assistant
+      </button>
+      <button id="stopBtn" class="btn btn-secondary" type="button" disabled>
+        Stop
+      </button>
+    </section>
+
+    <section class="status-section" aria-live="polite">
+      <h2>Status</h2>
+      <p id="status">Idle. Click "Start Voice Assistant" on a page with a form.</p>
+    </section>
+
+    <section class="log-section">
+      <h2>Conversation Log</h2>
+      <div id="log" class="log" aria-label="Conversation log"></div>
+    </section>
+
+    <footer class="footer">
+      <p>
+        VoxFill never submits forms automatically. It never asks for or stores
+        passwords, OTPs, or banking details.
+      </p>
+    </footer>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>
