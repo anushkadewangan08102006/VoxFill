@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Environment secrets — NEVER commit this
+.env
+
+# Runtime directories
+logs/
+tmp/
+
+# OS artefacts
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Audio model files (large binaries — manage separately)
+models/*.onnx
+models/*.bin
