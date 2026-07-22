@@ -12,10 +12,13 @@
   const VF = (window.VoxFill = window.VoxFill || {});
 
   const state = {
-    fields: [],
-    currentIndex: 0,
-    active: false,
-  };
+  fields: [],
+  currentIndex: 0,
+  active: false,
+
+  languageMode: 'english',
+  speechLanguage: 'en-IN',
+};
 
   // ---------- Speech-to-value parsing helpers ----------
 
@@ -35,7 +38,65 @@
     eight: '8',
     nine: '9',
   };
+  async function askPreferredLanguage() {
+  await VF.voice.setLanguage('en-IN');
 
+  await VF.voice.speak(
+    'Which language are you comfortable with? konse language me baat krna h ' +
+    'Say English, Hindi'
+  );
+
+  VF.ui.setStatus('Select language: English, Hindi');
+
+  let transcript;
+
+  try {
+    transcript = await VF.voice.listenOnce(10000);
+  } catch (error) {
+    await VF.voice.speak(
+      'I could not hear the language. English will be selected.'
+    );
+
+    state.languageMode = 'english';
+    state.speechLanguage = 'en-IN';
+    await VF.voice.setLanguage('en-IN');
+    return;
+  }
+
+  const answer = transcript.toLowerCase();
+
+  if (
+    answer.includes('hindi') ||
+    answer.includes('हिंदी')
+  ) {
+    state.languageMode = 'hindi';
+    state.speechLanguage = 'en-IN';
+
+    await VF.voice.setLanguage('en-IN');
+    await VF.voice.speak('ठीक है। अब हम हिंदी में बात करेंगे।');
+  } else if (
+    answer.includes('hinglish') ||
+    answer.includes('हिंग्लिश')
+  ) {
+    state.languageMode = 'hinglish';
+    state.speechLanguage = 'en-IN';
+
+    await VF.voice.setLanguage('en-IN');
+    await VF.voice.speak(
+      'Theek hai. Ab hum Hinglish mein baat karenge.'
+    );
+  } else {
+    state.languageMode = 'english';
+    state.speechLanguage = 'en-IN';
+
+    await VF.voice.setLanguage('en-IN');
+    await VF.voice.speak(
+      'Okay. We will continue in English.'
+    );
+  }
+
+  VF.ui.log(`Selected language: ${state.languageMode}`);
+}
   function wordsToDigits(text) {
     const tokens = text
       .toLowerCase()
@@ -60,15 +121,27 @@
   }
 
   function spokenToEmail(text) {
-    let t = ' ' + text.toLowerCase().trim() + ' ';
-    t = t
-      .replace(/\s+at\s+/g, '@')
-      .replace(/\s+dot\s+/g, '.')
-      .replace(/\s+underscore\s+/g, '_')
-      .replace(/\s+(dash|hyphen)\s+/g, '-')
-      .replace(/\s+/g, '');
-    return t;
-  }
+  let t = ' ' + text.toLowerCase().trim() + ' ';
+
+   t=t
+    // "at the rate", "at the rate of", aur "at" ko @ banayega
+    .replace(/\s+at\s+the\s+rate\s+of\s+/g, '@')
+    .replace(/\s+at\s+the\s+rate\s+/g, '@')
+    .replace(/\s+at\s+/g, '@')
+
+    // Dot ke different spoken forms
+    .replace(/\s+dot\s+/g, '.')
+    .replace(/\s+point\s+/g, '.')
+
+    // Other symbols
+    .replace(/\s+underscore\s+/g, '_')
+    .replace(/\s+(dash|hyphen)\s+/g, '-')
+
+    // Remaining spaces remove karega
+    .replace(/\s+/g, '');
+
+  return t;
+}
 
   const MONTHS = [
     'january', 'february', 'march', 'april', 'may', 'june',
@@ -117,21 +190,24 @@
   }
 
   function normalizeAnswer(field, transcript) {
-    switch (field.type) {
-      case 'email':
-        return spokenToEmail(transcript);
-      case 'tel': {
-        const digits = wordsToDigits(transcript);
-        return digits || transcript.replace(/\s+/g, '');
-      }
-      case 'date': {
-        const iso = parseSpokenDate(transcript);
-        return iso || transcript;
-      }
-      default:
-        return transcript.trim();
+  switch (field.type) {
+    case 'email':
+      return spokenToEmail(transcript);
+
+    case 'tel': {
+      const digits = wordsToDigits(transcript);
+      return digits || transcript.replace(/\s+/g, '');
     }
+
+    case 'date': {
+      const iso = parseSpokenDate(transcript);
+      return iso || transcript;
+    }
+
+    default:
+      return transcript.trim();
   }
+}
 
   // ---------- Voice command detection ----------
 
@@ -177,29 +253,134 @@
   // ---------- Questions ----------
 
   function fieldQuestion(field) {
-    if (field.type === 'select' || field.type === 'select-multiple' || field.type === 'radio') {
-      const opts = field.options.map((o) => o.text).filter(Boolean).join(', ');
-      return `For ${field.label}, your options are: ${opts}. Please say your choice.`;
+  const label = field.label;
+
+  if (state.languageMode === 'hindi') {
+    if (
+      field.type === 'select' ||
+      field.type === 'select-multiple' ||
+      field.type === 'radio'
+    ) {
+      const options = field.options
+        .map((option) => option.text)
+        .filter(Boolean)
+        .join(', ');
+
+      return `${label} के लिए विकल्प हैं: ${options}। कृपया अपना विकल्प बताइए।`;
     }
+
     if (field.type === 'checkbox') {
-      return `Do you want to select ${field.label}? Please say yes or no.`;
+      return `क्या आप ${label} चुनना चाहते हैं? कृपया हाँ या नहीं बोलिए।`;
     }
+
     if (field.type === 'checkbox-group') {
-      const opts = field.options.map((o) => o.text).filter(Boolean).join(', ');
-      return `For ${field.label}, you may choose one or more of: ${opts}. Please say your choices.`;
+      const options = field.options
+        .map((option) => option.text)
+        .filter(Boolean)
+        .join(', ');
+
+      return `${label} के लिए आप इनमें से विकल्प चुन सकते हैं: ${options}।`;
     }
+
     if (field.type === 'date') {
-      return `Please say your ${field.label}, for example the 22nd of July 2026.`;
+      return `कृपया अपनी ${label} बताइए।`;
     }
+
     if (field.type === 'email') {
-      return `Please say your ${field.label}. For example, say "john at gmail dot com".`;
+      return `कृपया अपना ${label} बताइए। उदाहरण के लिए anushka at gmail dot com।`;
     }
+
     if (field.type === 'tel') {
-      return `Please say your ${field.label}, digit by digit.`;
+      return `कृपया अपना ${label} एक-एक अंक करके बताइए।`;
     }
-    return `Please provide your ${field.label}.`;
+
+    return `कृपया अपना ${label} बताइए।`;
   }
 
+  if (state.languageMode === 'hinglish') {
+    if (
+      field.type === 'select' ||
+      field.type === 'select-multiple' ||
+      field.type === 'radio'
+    ) {
+      const options = field.options
+        .map((option) => option.text)
+        .filter(Boolean)
+        .join(', ');
+
+      return `${label} ke options hain: ${options}. Please apna option boliye.`;
+    }
+
+    if (field.type === 'checkbox') {
+      return `Kya aap ${label} select karna chahte hain? Please yes ya no boliye.`;
+    }
+
+    if (field.type === 'checkbox-group') {
+      const options = field.options
+        .map((option) => option.text)
+        .filter(Boolean)
+        .join(', ');
+
+      return `${label} ke liye aap ye options choose kar sakte hain: ${options}.`;
+    }
+
+    if (field.type === 'date') {
+      return `Please apni ${label} batayein.`;
+    }
+
+    if (field.type === 'email') {
+      return `Please apna ${label} batayein. Example, anushka at gmail dot com.`;
+    }
+
+    if (field.type === 'tel') {
+      return `Please apna ${label} digit by digit boliye.`;
+    }
+
+    return `Please apna ${label} batayein.`;
+  }
+
+  // English
+
+  if (
+    field.type === 'select' ||
+    field.type === 'select-multiple' ||
+    field.type === 'radio'
+  ) {
+    const options = field.options
+      .map((option) => option.text)
+      .filter(Boolean)
+      .join(', ');
+
+    return `For ${label}, your options are: ${options}. Please say your choice.`;
+  }
+
+  if (field.type === 'checkbox') {
+    return `Do you want to select ${label}? Please say yes or no.`;
+  }
+
+  if (field.type === 'checkbox-group') {
+    const options = field.options
+      .map((option) => option.text)
+      .filter(Boolean)
+      .join(', ');
+
+    return `For ${label}, you may choose one or more of: ${options}.`;
+  }
+
+  if (field.type === 'date') {
+    return `Please say your ${label}.`;
+  }
+
+  if (field.type === 'email') {
+    return `Please say your ${label}. For example, anushka at gmail dot com.`;
+  }
+
+  if (field.type === 'tel') {
+    return `Please say your ${label}, digit by digit.`;
+  }
+
+  return `Please provide your ${label}.`;
+}
   // ---------- Flow control ----------
 
   function remainingRequiredFields() {
@@ -224,13 +405,24 @@
   }
 
   async function announceOverview() {
-    const count = state.fields.length;
-    const names = state.fields.map((f) => f.label).join(', ');
+  const count = state.fields.length;
+
+  if (state.languageMode === 'hindi') {
     await VF.voice.speak(
-      `I found ${count} field${count === 1 ? '' : 's'} on this form: ${names}. Let's begin.`
+      `इस फॉर्म में ${count} फ़ील्ड हैं। चलिए शुरू करते हैं।`
     );
-    VF.ui.setStatus(`Found ${count} field${count === 1 ? '' : 's'}.`);
+  } else if (state.languageMode === 'hinglish') {
+    await VF.voice.speak(
+      `Is form mein ${count} fields hain. Chaliye start karte hain.`
+    );
+  } else {
+    await VF.voice.speak(
+      `I found ${count} fields. Let's begin.`
+    );
   }
+
+  VF.ui.setStatus(`Found ${count} fields.`);
+}
 
   async function askCurrentField() {
     if (!state.active) return;
@@ -445,33 +637,56 @@
   }
 
   async function start() {
-    if (!VF.voice.isSupported()) {
-      VF.ui.setStatus('Speech recognition is not supported in this browser.');
-      await VF.voice.speak(
-        'Sorry, this browser does not support speech recognition. Please try Google Chrome.'
-      );
-      VF.ui.notifyDone();
-      return;
-    }
+  if (!VF.voice.isSupported()) {
+    VF.ui.setStatus('Speech recognition is not supported in this browser.');
 
-    state.fields = VF.scanner.scan();
-    state.currentIndex = 0;
-    state.active = true;
+    await VF.voice.speak(
+      'Sorry, this browser does not support speech recognition. Please try Google Chrome.'
+    );
 
-    if (state.fields.length === 0) {
-      await VF.voice.speak('I could not find any fillable form fields on this page.');
-      VF.ui.setStatus('No fields found.');
-      state.active = false;
-      VF.ui.notifyDone();
-      return;
-    }
-
-    VF.ui.setStatus(`Scanning complete. ${state.fields.length} field(s) found.`);
-    await announceOverview();
-    if (!state.active) return;
-    state.currentIndex = firstUnfilledIndex();
-    await proceed();
+    VF.ui.notifyDone();
+    return;
   }
 
-  VF.conversation = { start, stop, getState: () => state };
+  // Session ko active karo
+  state.active = true;
+
+  // Sabse pehle user se language pucho
+  await askPreferredLanguage();
+
+  // Agar user ne assistant stop kar diya ho
+  if (!state.active) return;
+
+  // Language select hone ke baad form scan karo
+  state.fields = VF.scanner.scan();
+  state.currentIndex = 0;
+
+  if (state.fields.length === 0) {
+    await VF.voice.speak(
+      'I could not find any fillable form fields on this page.'
+    );
+
+    VF.ui.setStatus('No fields found.');
+    state.active = false;
+    VF.ui.notifyDone();
+    return;
+  }
+
+  VF.ui.setStatus(
+    `Scanning complete. ${state.fields.length} field(s) found.`
+  );
+
+  await announceOverview();
+
+  if (!state.active) return;
+
+  state.currentIndex = firstUnfilledIndex();
+  await proceed();
+}
+
+VF.conversation = {
+  start,
+  stop,
+  getState: () => state
+};
 })();
