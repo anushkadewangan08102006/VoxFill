@@ -1,0 +1,19 @@
+{
+  "name": "voxfill-auth-portal",
+  "version": "1.0.0",
+  "description": "Standalone auth portal for signing in and downloading the VoxFill Chrome extension.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "package-extension": "sh scripts/package-extension.sh"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "voxfill",
+    "chrome-extension",
+    "auth"
+  ],
+  "license": "MIT"
+}

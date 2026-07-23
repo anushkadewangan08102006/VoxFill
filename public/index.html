@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VoxFill Download Portal</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <section class="intro" aria-labelledby="page-title">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">VF</span>
+        <span>VoxFill</span>
+      </div>
+      <h1 id="page-title">Download VoxFill Extension</h1>
+      <p>
+        Sign in to access the latest VoxFill Chrome extension package for
+        voice-guided form filling.
+      </p>
+
+      <div class="download-panel" id="downloadPanel" hidden>
+        <div>
+          <span class="eyebrow">Signed in</span>
+          <h2 id="welcomeTitle">Ready to download</h2>
+        </div>
+        <a class="download-button" href="/download/voxfill-extension.zip">
+          Download Extension
+        </a>
+      </div>
+    </section>
+
+    <section class="auth-card" aria-label="Account access">
+      <div class="tabs" role="tablist" aria-label="Authentication mode">
+        <button class="tab active" id="signinTab" type="button" role="tab" aria-selected="true">
+          Sign in
+        </button>
+        <button class="tab" id="signupTab" type="button" role="tab" aria-selected="false">
+          Sign up
+        </button>
+      </div>
+
+      <form id="authForm" novalidate>
+        <label class="field" id="nameField" hidden>
+          <span>Name</span>
+          <input id="nameInput" name="name" autocomplete="name" minlength="2" />
+        </label>
+
+        <label class="field">
+          <span>Email</span>
+          <input id="emailInput" name="email" type="email" autocomplete="email" required />
+        </label>
+
+        <label class="field">
+          <span>Password</span>
+          <input id="passwordInput" name="password" type="password" autocomplete="current-password" minlength="8" required />
+        </label>
+
+        <button class="primary-action" id="submitBtn" type="submit">Sign in</button>
+      </form>
+
+      <div class="session-actions" id="sessionActions" hidden>
+        <p id="sessionText"></p>
+        <button class="secondary-action" id="signoutBtn" type="button">Sign out</button>
+      </div>
+
+      <p class="message" id="message" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

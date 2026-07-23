@@ -1,0 +1,4 @@
+data/*
+!data/.gitkeep
+downloads/*.zip
+.DS_Store
