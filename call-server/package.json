@@ -1,0 +1,19 @@
+{
+  "name": "voxfill-call-server",
+  "version": "1.0.0",
+  "description": "Isolated VoxFill phone calling backend powered by Twilio Voice.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "twilio": "^5.4.0"
+  }
+}
