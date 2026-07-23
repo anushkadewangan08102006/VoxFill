@@ -47,6 +47,7 @@ function addLogLine(logEl, text) {
 function init() {
   const startBtn = document.getElementById('startBtn');
   const stopBtn = document.getElementById('stopBtn');
+  const callBtn = document.getElementById('callBtn');
   const statusEl = document.getElementById('status');
   const logEl = document.getElementById('log');
 
@@ -97,6 +98,24 @@ function init() {
     }
     startBtn.disabled = false;
     stopBtn.disabled = true;
+  });
+
+  callBtn.addEventListener('click', async () => {
+    const phoneNumber = window.prompt('Enter your phone number in E.164 format, for example +919876543210');
+    if (phoneNumber === null) return;
+
+    callBtn.disabled = true;
+    statusEl.textContent = 'Starting phone call...';
+
+    try {
+      const tab = await getActiveTab();
+      const result = await window.VoxFillCallService.startPhoneCall(phoneNumber, tab?.title);
+      statusEl.textContent = `Phone call started. Call SID: ${result.callSid}`;
+    } catch (error) {
+      statusEl.textContent = error.message || 'Could not start the phone call.';
+    } finally {
+      callBtn.disabled = false;
+    }
   });
 }
 
